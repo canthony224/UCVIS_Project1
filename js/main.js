@@ -2,6 +2,9 @@
  * Load data from CSV file asynchronously and render scatter plot
  */
 let data, scatterplot, barchart, viewHabitable;
+let all_barcharts = []
+
+
 d3.csv('data/exoplanets.csv')
   .then(_data => {
     data = _data;
@@ -140,7 +143,7 @@ d3.csv('data/exoplanets.csv')
       'scale': 'category',
       'containerWidth': 900,
       'containerHeight': 500,
-      'showHabit': false
+      'showHabit': true
     },groupByStarType)
 
     
@@ -181,17 +184,33 @@ d3.csv('data/exoplanets.csv')
     planetsPerPlanet.updateVis();
     planetsPerStarType.updateVis();
     planetsPerDiscMethod.updateVis();
+    all_barcharts.push(discoveryPerYear,planetsPerStar,planetsPerStarType,planetsPerDiscMethod)
     //scatterplot.updateVis();
     //lineChart.updateVis()
+
   })
-
-
   .catch(error => console.error(error));
-
+  // paired ["#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f","#ff7f00","#cab2d6","#6a3d9a","#ffff99","#b15928"]
+  // set3 ["#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3","#fdb462","#b3de69","#fccde5","#d9d9d9","#bc80bd","#ccebc5","#ffed6f"]
+  // custom ['#f55d50', "#00b1b0","#fec84d","#e42256","#5b5b5b",'#f1e8d2',"#4c6a87","#91e3f0","#33a02c","#d9d9d9","#bc80bd"]
+  function updateAllChartData(column,value)  { // sets value of chart and updates it
+    all_barcharts.forEach(chart => {
+      chart[column] = value
+      chart.updateVis()
+      
+    });
+  }
 
 /**
  * Event listener: use color legend as filter
  */
+
+d3.selectAll('#viewHabit').on('click', function(e) {
+  let checked = e.target.checked;
+  console.log("chang habit",checked);
+  updateAllChartData('showHabit',checked) // change to selected state
+});
+
 d3.selectAll('.legend-btn').on('click', function() {
   // Toggle 'inactive' class
   d3.select(this).classed('inactive', !d3.select(this).classed('inactive'));

@@ -19,9 +19,10 @@ class BarChart {
       this.yLabel = _config.yLabel
       this.xLabelText = _config.xLabelText
       this.yLabelText = _config.yLabelText
-      this.scale = _config.scale
-      this.title = _config.title
+      this.scale = _config.scale || 'category'
+      this.title = _config.title || "Title goes here"
       this.showHabit = _config.showHabit
+      this.colorPalet = _config.colorPalet || ['#f55d50', "#00b1b0","#fec84d","#e42256","#5b5b5b",'#f1e8d2',"#4c6a87","#91e3f0","#33a02c","#d9d9d9","#bc80bd"]
       this.initVis();
     }
 
@@ -31,45 +32,57 @@ class BarChart {
     this.width = this.config.containerWidth - this.config.margin.left - this.config.margin.right;
     this.height = this.config.containerHeight - this.config.margin.top - this.config.margin.bottom;
 
-    console.log("generating bar chart",this.data)  
     
-    
+    console.log("generating bar chart",this.data,this.showHabit)  
     // Construct scales, axes, and formats.
+    let xDomain,xRange;
+    let yDomain,yRange;
     if (this.scale == 'time'){
-      const xDomain = d3.extent(this.data,d => { return new Date(d[0], 0, 1)})
-      const xRange = [this.width/this.data.size/2, this.width-this.width/this.data.size/2]
+      xDomain = d3.extent(this.data,d => { return new Date(d[0], 0, 1)})
+      xRange = [this.width/this.data.size/2, this.width-this.width/this.data.size/2]
       this.xScale = d3.scaleTime(xDomain, xRange)
       console.log(xDomain,xRange)
     }else if (this.scale == 'category'){      
-      const xDomain = d3.map(this.data,function(d) {return d[0]; });
-      const xRange = [0, this.width]
+      xDomain = d3.map(this.data,function(d) {return d[0]; });
+      xRange = [0, this.width]
       this.xScale = d3.scaleBand(xDomain,xRange)
       console.log(xDomain,xRange)
-      console.log(this.xScale('G'),this.xScale('F'))
+
+    this.habitScale = d3.scaleBand()
+    .domain(['-1','0','1'])
+    .range([0,this.xScale.bandwidth()]);
+    //.padding
     }
 
     //.domain(xDomain)
     //.range(xRange)
     //const xzScale = d3.scaleBand(zDomain, [0, xScale.bandwidth()]).padding(zPadding);
-    let yDomain = [0,d3.max(this.data,d=>{
+    yDomain = [0,d3.max(this.data,d=>{
       // if self.showHabit??
       
       return d[1].get('total')
     })] // posibly reverse??
-    let yRange = [this.height,0]
+    yRange = [this.height,0]
     if (yDomain[1] - yDomain[0] > 1000) { // if obver 1k difference switch to log scale
-        yDomain[0] = 1
-        this.yScale = d3.scaleLog(yDomain, yRange)
+        yDomain[0] = 0
+        this.yScale = d3.scaleLinear(yDomain, yRange)
     }else{
         this.yScale = d3.scaleLinear(yDomain, yRange).nice();
     }
-    console.log('Ydom',yDomain,yRange)
     
-    //const zScale = d3.scaleOrdinal(zDomain, colors);
+
+    // Set up habit scale TODO: only when not time because ye
+    
+    
+    // set up colors custom or not
+    this.colorScale = d3.scaleOrdinal()
+    .domain(xDomain)
+    .range(this.colorPalet);
+
     this.xAxis = d3.axisBottom(this.xScale)
     //.tickFormat();
     this.yAxis = d3.axisLeft(this.yScale)
-    .ticks(null,"~s")
+    .ticks(null,">,~d")
   
     this.svg = d3.select(this.config.parentElement)
         .attr('width', this.config.containerWidth)
@@ -98,7 +111,7 @@ class BarChart {
         .style('text-anchor', 'end')
         .text(this.xLabelText);
 
-    this.svg.append('text')
+    this.chart.append('text')
         .attr('class', 'axis-title')
         .attr('x', 1)
         .attr('y', 15)
@@ -107,52 +120,110 @@ class BarChart {
 
 
     // chart title
-    this.svg.append("text")
+    this.chart.append("text")
     .attr("x", this.width / 2 )
     .attr("y", 11)
     .style("text-anchor", "middle")
-    .text("Title of Graph");
+    .text(this.title);
   }
 
   updateVis(){
     // TODO: make mouse change onhover with elements to click
-    this.bars = this.chart.selectAll('.bar')
-    .data(this.data)
-    .join("rect")
-      .attr('class', 'bar')
-      .attr("x", d => {
-        //console.log(this.xScale(d[this.xLabel]))
-        if (this.scale == 'time'){
-          let xDate = new Date(d[0], 0, 1)
-          return this.xScale(xDate) - (this.width/this.data.size/2) +2; 
-        }else if (this.scale == 'category'){
-          //console.log("bandscale",d[this.xLabel],this.xScale(d[this.xLabel]))
-          return this.xScale(d[0]); 
-        } 
-        //return this.xScale(d[this.xLabel]) -2
-      })
-      .attr("y", d => {
-        if (this.showHabit){ //TODO: make this a tripple stacked bar
-          let totalHeight = d[1].get('total')
-          return this.yScale(totalHeight)
-        }else{
-          let totalHeight = d[1].get('total')
-          return this.yScale(totalHeight)
-        }
-      })
-      .attr("width", d => {
-        return this.width / this.data.size - 4
-      })
-      .attr("height", (d) => {
-        let totalHeight = d[1].get('total')
-        let scaledHeight = this.height - this.yScale(totalHeight)
-        return scaledHeight
-      })
-        
-      .attr("fill", d => {
-        return '#00000'
-      } ); //color??
+    //console.log("updating chart",this)
+    if (this.showHabit) {
 
+    
+    this.bars = this.chart
+      .append('g')
+      .selectAll('.bars')
+      .data(this.data)
+      .join("rect")
+      .attr('class', 'bar')
+      .attr('x', (d) => {
+        console.log("set x",d)
+        let xOrigin = this.xScale(d[0])
+        let zShift = this.
+        this.xScale(d.data.xDomain) - 20})
+      .attr('width',40)
+      .attr('y', (d) => {
+        console.log(d)
+        return this.yScale(d[1])
+      })
+      
+      .attr('height', (d) =>{
+        console.log(d[1],d[0],this.yScale(d[0]))
+        console.log("height?",this.yScale(d[1]) -  this.yScale(d[0]))
+      })
+      .style('fill', (d) =>{
+        console.log("seting color",d.key)
+        return "#efefef"
+      })
+      /*
+        .attr('class', 'bar')
+        .attr("x", d => {
+          //console.log(this.xScale(d[this.xLabel]))
+          if (this.scale == 'time'){
+            let xDate = new Date(d[0], 0, 1)
+            return this.xScale(xDate) - (this.width/this.data.size/2) +2; 
+          }else if (this.scale == 'category'){
+            return this.xScale(d.data.xDomain); 
+          } 
+          //return this.xScale(d[this.xLabel]) -2
+        })
+        .attr("y", d => {
+            return this.yScale(d[1])
+        })
+        .attr("width", d => {
+          return this.width / this.data.size - 4
+        })
+        .attr("height", (d) => {
+          let scaledHeight = this.yScale(d[0]) - this.yScale(d[1])
+          return scaledHeight
+        })
+          
+        /*.attr("fill", (d,i) => {
+          //console.log('color', d[1],i)
+          return '#00000'
+        } ); //color??*/
+
+    } else{
+      this.bars = this.chart.selectAll('.bar')
+      .data(this.data)
+      .join("rect")
+        .attr('class', 'bar')
+        .attr("x", d => {
+          //console.log(this.xScale(d[this.xLabel]))
+          if (this.scale == 'time'){
+            let xDate = new Date(d[0], 0, 1)
+            return this.xScale(xDate) - (this.width/this.data.size/2) +2; 
+          }else if (this.scale == 'category'){
+            //console.log("bandscale",d[this.xLabel],this.xScale(d[this.xLabel]))
+            return this.xScale(d[0]); 
+          } 
+          //return this.xScale(d[this.xLabel]) -2
+        })
+        .attr("y", d => {
+          if (this.showHabit){ //TODO: make this a tripple stacked bar
+            let totalHeight = d[1].get('total')
+            return this.yScale(totalHeight)
+          }else{
+            let totalHeight = d[1].get('total')
+            return this.yScale(totalHeight)
+          }
+        })
+        .attr("width", d => {
+          return this.width / this.data.size - 4
+        })
+        .attr("height", (d) => {
+          let totalHeight = d[1].get('total')
+          let scaledHeight = this.height - this.yScale(totalHeight)
+          return scaledHeight
+        })
+          
+        .attr("fill", d => {
+          return '#00000'
+        } ); //color??
+      }
   
       this.bars
       .on('mouseover', (event,d) => {
