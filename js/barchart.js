@@ -65,7 +65,6 @@ class BarChart {
         return d[1].get('total')
       }
     })] // posibly reverse??
-    console.log('yD',yDomain)
     yRange = [this.height,0]
     if (yDomain[1] - yDomain[0] > 1000) { // if obver 1k difference switch to log scale
         yDomain[0] = 1
@@ -190,12 +189,10 @@ class BarChart {
       .enter()
       .append('g')
       .attr("transform", (d) => {
-        console.log("trand",d)
         return "translate(" + this.xScale(d[0]) + ",0)"; })
       .selectAll('rect')
       .data((d) => {
         d[1].delete('total')
-        console.log("returning",d[1])
         return d[1]
       })
       .join(
@@ -212,7 +209,6 @@ class BarChart {
         .attr('width',this.habitScale.bandwidth()) // set default trans
         .style('fill', (d) =>{
           let color = this.habitColorScale(d[0])
-          console.log("seting color",d,color)
           return color
         })
         .attr('y',this.height)
@@ -226,25 +222,23 @@ class BarChart {
           return exit.remove()
         });
       
-      this.bars = d3.selectAll('.bar');
+      this.bars = this.chart.selectAll('.bar');
       this.bars.transition()
       .attr('y', (d) => {
-        console.log('y?',d)
+        //console.log('y?',d)
         return this.yScale(d[1])
       })
       .attr('height', (d) =>{
-        console.log("height?",d[1], this.height -this.yScale(d[1]))
+        //console.log("height?",d[1], this.height -this.yScale(d[1]))
         return this.height - this.yScale(d[1]) 
       })
       .attr('opacity',1)
     
     } else{
-      console.log("changing type",this.data)
       this.bars = this.chart.selectAll('.bar')
       .data(this.data)
       .join(
         (enter) =>{
-         
           return enter
           .append("rect")
           .attr('class', 'bar')
@@ -278,10 +272,7 @@ class BarChart {
         },
         (exit) =>{
           console.log("exiting")
-          return exit
-          //.transition()
-          //.attr('opacity',0)
-          .remove();
+          return exit.remove();
         }
       ) // move tootltip stuff here
       .on('mouseover', (event,d) => {
@@ -341,7 +332,6 @@ class BarChart {
       })
       .attr('opacity',1)
       }
-      console.log(this.bars)
       
       
 

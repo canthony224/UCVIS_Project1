@@ -1,7 +1,7 @@
 /**
  * Load data from CSV file asynchronously and render scatter plot
  */
-let data, scatterplot, barchart, viewHabitable, customChart, selectedData
+let data, scatterplot, barchart, viewHabitable, customChart,customChart2, selectedData, selectedData2
 let groupByDiscMethod,groupByPlanetCount,groupByStarCount,groupByStarType, groupByYearDate;
 let all_barcharts = []
 
@@ -10,11 +10,33 @@ function myFunction() {
   document.getElementById("myDropdown").classList.toggle("show");
 }
 
+
+function myFunction2() {
+  document.getElementById("myDropdown2").classList.toggle("show");
+}
+
 function filterFunction() {
   var input, filter, ul, li, a, i;
   input = document.getElementById("myInput");
   filter = input.value.toUpperCase();
   div = document.getElementById("myDropdown");
+  a = div.getElementsByTagName("a");
+  for (i = 0; i < a.length; i++) {
+    txtValue = a[i].textContent || a[i].innerText;
+    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+      a[i].style.display = "";
+    } else {
+      a[i].style.display = "none";
+    }
+  }
+}
+
+
+function filterFunction2() {
+  var input, filter, ul, li, a, i;
+  input = document.getElementById("myInput2");
+  filter = input.value.toUpperCase();
+  div = document.getElementById("myDropdown2");
   a = div.getElementsByTagName("a");
   for (i = 0; i < a.length; i++) {
     txtValue = a[i].textContent || a[i].innerText;
@@ -121,6 +143,7 @@ d3.csv('data/exoplanets.csv')
 
 
     groupByDiscMethod = mapOutDataHabitable(data,'discoverymethod')
+    
     selectedData = groupByStarCount;
     customChart = new BarChart({
       'parentElement': '#chartDown',
@@ -135,8 +158,24 @@ d3.csv('data/exoplanets.csv')
       'title': "Exoplanets per Star Count",
       'showHabit': false
     },groupByStarCount)
-    
     customChart.updateVis();
+
+    // Second comparison chart
+    selectedData2 = groupByPlanetCount
+    customChart2 = new BarChart({
+      'parentElement': '#chartDown2',
+      'type': 'single',
+      'xLabel': 'xLabel',
+      'yLabel': 'count',
+      'xLabelText': 'Number of Planets',
+      'yLabelText': 'Exoplanets',
+      'scale': 'category',
+      'containerWidth': 600,
+      'containerHeight': 400,
+      'showHabit': false
+    },groupByPlanetCount)
+    
+    customChart2.updateVis();
     //discoveryPerYear.updateVis();
     /*
     planetsPerStar = new BarChart({
@@ -228,7 +267,7 @@ d3.csv('data/exoplanets.csv')
     //planetsPerPlanet.updateVis();
     //planetsPerStarType.updateVis();
     //planetsPerDiscMethod.updateVis();
-    all_barcharts.push(customChart)
+    all_barcharts.push(customChart,customChart2)
     //scatterplot.updateVis();
     //lineChart.updateVis()
 
@@ -244,93 +283,45 @@ d3.csv('data/exoplanets.csv')
     });
   }
 
+  function updateChart(chart,column,value)  { // sets value of chart and updates it
+    console.log("updating chart",chart,column)  
+    chart[column] = value
+    chart.updateVis()
+  }
 
-  function buildChart(targ) {
+  function buildChart(chart,targ) {
     // ghetto fix: just remove all previous data
     
     //console.log('building',targ,customChart)
     if (targ == "sc"){ // star count
-      selectedData = groupByStarCount
-      customChart.data = groupByStarCount;
-      customChart.xLabelText='Number of stars';
-      customChart.scale = 'category';
-      customChart.title = "Exoplanets Per Star Count";
-      /*customChart = new BarChart({
-        'parentElement': '#chartDown',
-        'type': 'single',
-        'xLabel': 'xLabel',
-        'yLabel': 'count',
-        'xLabelText': 'Number of stars',
-        'yLabelText': 'Exoplanets',
-        'scale': 'category',
-        'containerWidth': 600,
-        'containerHeight': 400,
-        'title': "Exoplanets Per Star Count",
-        'showHabit': false
-      },groupByStarCount)*/
+      chart.data = groupByStarCount;
+      chart.xLabelText='Number of stars';
+      chart.scale = 'category';
+      chart.title = "Exoplanets Per Star Count";
+      
     }else if(targ == "pc"){ // planet count
-      selectedData = groupByPlanetCount
-      customChart.data = groupByPlanetCount;
-      customChart.xLabelText='Number of Planets';
-      customChart.scale = 'category';
-      customChart.title = "Exoplanets per System Planets";
-
-      /*customChart = new BarChart({
-        'parentElement': '#chartDown',
-        'type': 'single',
-        'xLabel': 'xLabel',
-        'yLabel': 'count',
-        'xLabelText': 'Number of Planets',
-        'yLabelText': 'Exoplanets',
-        'scale': 'category',
-        'containerWidth': 600,
-        'containerHeight': 400,
-        'title': "Exoplanets per System Planets",
-        'showHabit': false
-      },groupByPlanetCount)*/
-
+      chart.data = groupByPlanetCount;
+      chart.xLabelText='Number of Planets';
+      chart.scale = 'category';
+      chart.title = "Exoplanets per System Planets";
+     
     }else if(targ == "ot"){
-      selectedData = groupByStarType
-      customChart.data = groupByStarType;
-      customChart.xLabelText='Star Spectral Type';
-      customChart.scale = 'category';
-      customChart.title = "Exoplanets per Star Type";
-      /*customChart = new BarChart({
-        'parentElement': '#chartDown',
-        'type': 'single',
-        'xLabel': 'xLabel',
-        'yLabel': 'count',
-        'xLabelText': 'Star Spectral Type',
-        'yLabelText': 'Exoplanets',
-        'scale': 'category',
-        'containerWidth': 600,
-        'containerHeight': 400,
-        'showHabit': false
-      },groupByStarType)*/
+      chart.data = groupByStarType;
+      chart.xLabelText='Star Spectral Type';
+      chart.scale = 'category';
+      chart.title = "Exoplanets per Star Type";
       
     }else if(targ == "dm"){
-      selectedData = groupByDiscMethod
-      customChart.data = groupByDiscMethod;
-      customChart.xLabelText='Discovery Method';
-      customChart.scale = 'category';
-      customChart.title = "Discovery Methods of Exoplanets";
-      /*customChart = new BarChart({
-        'parentElement': '#chartDown',
-        'type': 'single',
-        'xLabel': 'xLabel',
-        'yLabel': 'count',
-        'xLabelText': 'Discovery Method',
-        'yLabelText': 'Exoplanets',
-        'scale': 'category',
-        'containerWidth': 600,
-        'containerHeight': 400,
-        'showHabit': false
-      },groupByDiscMethod)*/
+      chart.data = groupByDiscMethod;
+      chart.xLabelText='Discovery Method';
+      chart.scale = 'category';
+      chart.title = "Discovery Methods of Exoplanets";
+     
     }
-    document.getElementById("myDropdown").classList.toggle("show");
-    return customChart.updateVis();
-    
+    chart.updateVis();
   }
+
+
 /**
  * Event listener: use color legend as filter
  */
@@ -342,7 +333,18 @@ d3.selectAll('#viewHabit').on('click', function(e) {
   let checked = e.target.checked;
   console.log("chang habit",checked);
   customChart.data = selectedData
-  updateAllChartData('showHabit',checked) // change to selected state
+  updateChart(customChart,'showHabit',checked) // change to selected state
+});
+
+
+d3.selectAll('#viewHabit2').on('click', function(e) {
+  customChart2.data = []
+  customChart2.updateVis()
+
+  let checked = e.target.checked;
+  console.log("chang habit2",checked);
+  customChart2.data = selectedData2
+  updateChart(customChart2,'showHabit',checked) // change to selected state
 });
 
 
@@ -350,13 +352,45 @@ d3.selectAll('#viewHabit').on('click', function(e) {
 d3.selectAll('#axisView').on('click', function(e) {
   customChart.data = []
   customChart.updateVis()
+
   let targ = e.target.getAttribute('data')
+  if (targ == "sc"){ // star count
+    selectedData = groupByStarCount
+  }else if(targ == "pc"){ // planet count
+    selectedData = groupByPlanetCount
+  }else if(targ == "ot"){ // orbit type
+    selectedData = groupByStarType
+  }else if(targ == "dm"){ // discovery method
+    selectedData = groupByDiscMethod
+  }
+
   let myText = e.target.textContent
   dropbtn = document.getElementById("dropbutn");
-  //console.log("changing",dropbtn,myText)
   dropbtn.textContent = myText
-  buildChart(targ)
-  //updateAllChartData('showHabit',checked) // change to selected state
+  document.getElementById("myDropdown").classList.toggle("show");
+  buildChart(customChart,targ)
+});
+
+
+d3.selectAll('#axisView2').on('click', function(e) {
+  customChart2.data = []
+  customChart2.updateVis()
+  let targ = e.target.getAttribute('data')
+  if (targ == "sc"){ // star count
+    selectedData2 = groupByStarCount
+  }else if(targ == "pc"){ // planet count
+    selectedData2 = groupByPlanetCount
+  }else if(targ == "ot"){ // orbit type
+    selectedData2 = groupByStarType
+  }else if(targ == "dm"){ // discovery method
+    selectedData2 = groupByDiscMethod
+  }
+
+  let myText = e.target.textContent
+  dropbtn = document.getElementById("dropbutn2");
+  dropbtn.textContent = myText
+  document.getElementById("myDropdown2").classList.toggle("show");
+  buildChart(customChart2,targ)
 });
 
 
