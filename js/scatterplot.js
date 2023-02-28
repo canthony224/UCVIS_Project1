@@ -14,6 +14,14 @@ class Scatterplot {
       tooltipPadding: _config.tooltipPadding || 15
     }
     this.data = _data;
+    this.xLabel = _config.xLabel
+    this.yLabel = _config.yLabel
+    this.xLabelText = _config.xLabelText
+    this.yLabelText = _config.yLabelText
+    this.scale = _config.scale || 'category'
+    this.title = _config.title || "Title Goes Here"
+    this.showHabit = _config.showHabit
+    this.colorPalet = _config.colorPalet || ['#f55d50', "#00b1b0","#fec84d","#e42256","#5b5b5b",'#f1e8d2',"#4c6a87","#91e3f0","#33a02c","#d9d9d9","#bc80bd"]
     this.initVis();
   }
   
@@ -24,71 +32,79 @@ class Scatterplot {
     let vis = this;
 
     // Calculate inner chart size. Margin specifies the space around the actual chart.
-    vis.width = vis.config.containerWidth - vis.config.margin.left - vis.config.margin.right;
-    vis.height = vis.config.containerHeight - vis.config.margin.top - vis.config.margin.bottom;
+    this.width = this.config.containerWidth - this.config.margin.left - this.config.margin.right;
+    this.height = this.config.containerHeight - this.config.margin.top - this.config.margin.bottom;
 
     // Initialize scales
-    vis.colorScale = d3.scaleOrdinal()
+    this.colorScale = d3.scaleOrdinal() // get earth data
         .range(['#d3eecd', '#7bc77e', '#2a8d46']) // light green to dark green
         .domain(['Easy','Intermediate','Difficult']);
 
-    vis.xScale = d3.scaleLinear()
-        .range([0, vis.width]);
+    this.xScale = d3.scaleLinear() // use log?
+        .range([0, this.width]);
 
-    vis.yScale = d3.scaleLinear()
-        .range([vis.height, 0]);
+    this.yScale = d3.scaleLinear() // use log?
+        .range([this.height, 0]);
 
     // Initialize axes
-    vis.xAxis = d3.axisBottom(vis.xScale)
+    this.xAxis = d3.axisBottom(this.xScale)
         .ticks(6)
-        .tickSize(-vis.height - 10)
+        .tickSize(-this.height - 10)
         .tickPadding(10)
-        .tickFormat(d => d + ' km');
+        .tickFormat(d => d); // more format?
 
-    vis.yAxis = d3.axisLeft(vis.yScale)
+    this.yAxis = d3.axisLeft(this.yScale)
         .ticks(6)
-        .tickSize(-vis.width - 10)
+        .tickSize(-this.width - 10)
+        .tickFormat(">,~d")
         .tickPadding(10);
 
     // Define size of SVG drawing area
-    vis.svg = d3.select(vis.config.parentElement)
-        .attr('width', vis.config.containerWidth)
-        .attr('height', vis.config.containerHeight);
+    this.svg = d3.select(this.config.parentElement)
+        .attr('width', this.config.containerWidth)
+        .attr('height', this.config.containerHeight);
 
     // Append group element that will contain our actual chart 
     // and position it according to the given margin config
-    vis.chart = vis.svg.append('g')
-        .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`);
+    this.chart = this.svg.append('g')
+        .attr('transform', `translate(${this.config.margin.left},${this.config.margin.top})`);
 
     // Append empty x-axis group and move it to the bottom of the chart
-    vis.xAxisG = vis.chart.append('g')
+    this.xAxisG = this.chart.append('g')
         .attr('class', 'axis x-axis')
-        .attr('transform', `translate(0,${vis.height})`);
+        .attr('transform', `translate(0,${this.height})`);
     
     // Append y-axis group
-    vis.yAxisG = vis.chart.append('g')
+    this.yAxisG = this.chart.append('g')
         .attr('class', 'axis y-axis');
 
-    // Append both axis titles
-    vis.chart.append('text')
+        this.xTitle = this.chart.append('text')
         .attr('class', 'axis-title')
-        .attr('y', vis.height - 15)
-        .attr('x', vis.width + 10)
+        .attr('y', this.height +30)
+        .attr('x', this.width )
         .attr('dy', '.71em')
         .style('text-anchor', 'end')
-        .text('Distance');
+        .text(this.xLabelText);
 
-    vis.svg.append('text')
+    this.yTitle = this.chart.append('text')
         .attr('class', 'axis-title')
-        .attr('x', 0)
-        .attr('y', 0)
+        .attr('x', -40)
+        .attr('y', -15)
         .attr('dy', '.71em')
-        .text('Hours');
+        .text(this.yLabelText);
+
+
+      // chart title
+    this.cTitle = this.chart.append("text")
+        .attr("x", this.width / 2 )
+        .attr("y", 11)
+        .style("text-anchor", "middle")
+        .text(this.title);
 
     // Specificy accessor functions
-    vis.colorValue = d => d.difficulty;
-    vis.xValue = d => d.time;
-    vis.yValue = d => d.distance;
+    this.colorValue = d => d.difficulty;
+    this.xValue = d => d.time;
+    this.yValue = d => d.distance;
   }
 
   /**
@@ -98,27 +114,27 @@ class Scatterplot {
     let vis = this;
     
     // Set the scale input domains
-    vis.xScale.domain([0, d3.max(vis.data, vis.xValue)]);
-    vis.yScale.domain([0, d3.max(vis.data, vis.yValue)]);
+    this.xScale.domain([0, d3.max(this.data, this.xValue)]);
+    this.yScale.domain([0, d3.max(this.data, this.yValue)]);
 
     // Add circles
-    vis.circles = vis.chart.selectAll('.point')
-        .data(vis.data, d => d.trail)
+    this.circles = this.chart.selectAll('.point')
+        .data(this.data, d => d.trail)
       .join('circle')
         .attr('class', 'point')
         .attr('r', 4)
-        .attr('cy', d => vis.yScale(vis.yValue(d)))
-        .attr('cx', d => vis.xScale(vis.xValue(d)))
-        .attr('fill', d => vis.colorScale(vis.colorValue(d)));
+        .attr('cy', d => this.yScale(this.yValue(d)))
+        .attr('cx', d => this.xScale(this.xValue(d)))
+        .attr('fill', d => this.colorScale(this.colorValue(d)));
 
 
     // Tooltip event listeners
-    vis.circles
+    this.circles
         .on('mouseover', (event,d) => {
           d3.select('#tooltip')
             .style('display', 'block')
-            .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')   
-            .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
+            .style('left', (event.pageX + this.config.tooltipPadding) + 'px')   
+            .style('top', (event.pageY + this.config.tooltipPadding) + 'px')
             .html(`
               <div class="tooltip-title">${d.trail}</div>
               <div><i>${d.region}</i></div>
@@ -135,12 +151,12 @@ class Scatterplot {
     
     // Update the axes/gridlines
     // We use the second .call() to remove the axis and just show gridlines
-    vis.xAxisG
-        .call(vis.xAxis)
+    this.xAxisG
+        .call(this.xAxis)
         .call(g => g.select('.domain').remove());
 
-    vis.yAxisG
-        .call(vis.yAxis)
+    this.yAxisG
+        .call(this.yAxis)
         .call(g => g.select('.domain').remove())
   }
 

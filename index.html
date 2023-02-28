@@ -29,17 +29,13 @@
         </div>
      </div>
 
-<div class="row">
-     <div id="timeline"> 
-        <svg id="discVis" width="600" height="400"> </svg>
-    </div>
-    
+<div class="row" class="flex-container">    
     <div id="custom"> 
         <div class="cbox"> 
             <label for="viewhabit">Planets In Habitable Zone</label>
             <input type="checkbox" id="viewHabit">
         </div>
-        <svg id="chartDown" width = "600", height = "400"></svg>
+        <svg id="chartDown" width = "600", height = "300"></svg>
         <div class="dropdown">
             <button id = "dropbutn" onclick="myFunction()" class="dropbtn">X Axis</button>
             <div id="myDropdown" class="dropdown-content">
@@ -56,7 +52,7 @@
             <label for="viewhabit">Planets In Habitable Zone</label>
             <input type="checkbox" id="viewHabit2">
         </div>
-        <svg id="chartDown2" width = "600", height = "400"></svg>
+        <svg id="chartDown2" width = "600", height = "300"></svg>
         <div id= 'dropdown2' class="dropdown">
             <button id = "dropbutn2" onclick="myFunction2()" class="dropbtn">X Axis</button>
             <div id="myDropdown2" class="dropdown-content">
@@ -70,6 +66,33 @@
     </div>
     
 </div>
+
+<div class="row">
+   <div id="custom3"> 
+       <svg id="distoChart" width = "600", height = "300"></svg>
+       <div class="cbox">
+        <label>Number of Bars:</label>
+        <input type="number" min="1" max="100" step="30" value="20" id="nBin">
+      </div>
+   </div>
+   <div id="custom4"> 
+        <div id="timeline"> 
+            <svg id="discVis" width="600" height="300"> </svg>
+        </div>
+   </div>
+   
+</div>
+
+<div class="row">
+    <div id="custom5"> 
+         <div id="timeline"> 
+            <svg id="sizeScatter" width = "1200", height = "400"></svg>
+         </div>
+       
+        
+    </div>
+    
+ </div>
     
       
         <!--
@@ -93,6 +116,7 @@
     <script src="js/scatterplot.js"></script>
     <script src="js/barchart.js"></script>
     <script src="js/line.js"></script>
+    <script src="js/histochart.js"></script>
     <script src="js/main.js"></script> 
  
 </body>

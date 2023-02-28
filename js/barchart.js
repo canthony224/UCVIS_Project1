@@ -122,7 +122,7 @@ class BarChart {
     this.yTitle = this.chart.append('text')
         .attr('class', 'axis-title')
         .attr('x', -40)
-        .attr('y', -10)
+        .attr('y', -15)
         .attr('dy', '.71em')
         .text(this.yLabelText);
 
@@ -136,7 +136,7 @@ class BarChart {
   }
 
   updateVis(){
-    console.log("updating",this.data)
+    console.log("updating?",this.data)
     
     let xDomain, yDomain, xRange, yRange;
     if (this.scale == 'time'){
@@ -165,7 +165,7 @@ class BarChart {
     if (yDomain[1] - yDomain[0] > 1000) { // if obver 1k difference switch to log scale
         yDomain[0] = 1
         this.yScale = d3.scaleLog()
-        this.yScale.domain(yDomain).range(yRange)
+        this.yScale.domain(yDomain).range(yRange);
     }else{
         this.yScale = d3.scaleLinear();
         this.yScale.domain(yDomain).range(yRange).nice();
@@ -183,6 +183,7 @@ class BarChart {
   renderVis() {
     // ACTUAL CHART UPDATING
     if (this.showHabit) {
+      console.log("showingShit")
       this.chart.append('g')
       .selectAll('g')
       .data(this.data)
@@ -192,11 +193,14 @@ class BarChart {
         return "translate(" + this.xScale(d[0]) + ",0)"; })
       .selectAll('rect')
       .data((d) => {
-        d[1].delete('total')
-        return d[1]
+        const newD =  new Map(d[1]); // make copy of d?
+        newD.delete('total')
+        console.log('oldD',d[1],newD)
+        return newD
       })
       .join(
         (enter) =>{
+          console.log("joined show")
           return enter
         .append('rect') // can replace this enter with joinI think
         .attr('class','bar')
@@ -218,14 +222,15 @@ class BarChart {
         (update) => {
           return update
         },
-        (exit) => {
+        (exit) => { // problem: does not properly call this exit
+          console.log('transexit')
           return exit.remove()
         });
       
       this.bars = this.chart.selectAll('.bar');
       this.bars.transition()
       .attr('y', (d) => {
-        //console.log('y?',d)
+        console.log('transy?',d,this.yScale(d[1]))
         return this.yScale(d[1])
       })
       .attr('height', (d) =>{
@@ -239,6 +244,7 @@ class BarChart {
       .data(this.data)
       .join(
         (enter) =>{
+          console.log("no show enter")
           return enter
           .append("rect")
           .attr('class', 'bar')
@@ -326,8 +332,8 @@ class BarChart {
       })
       .attr("height", (d) => {
         let totalHeight = d[1].get('total')
-        //console.log("not height",d,d[1],d[1].get('total'))
         let scaledHeight = this.height - this.yScale(totalHeight)
+        //console.log("not height",d,d[1],d[1].get('total'),scaledHeight)
         return scaledHeight
       })
       .attr('opacity',1)

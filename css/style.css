@@ -135,12 +135,12 @@ h1 {
   padding-left: 14px;
   margin-right: -14px;
   padding-top: 2px;
+  padding-right: 5px;
   margin-bottom: -30px;
   font-size: 14px;
 }
 
 .dropbtn {
-  
   background-color: #95a984;
   color: white;
   padding-left: 14px;
@@ -190,7 +190,7 @@ h1 {
 #myInput2:focus {outline: 3px solid #ddd;}
 
 .dropdown {
-  margin-top: -30px;
+  margin-top: -20px;
   margin-left: 20px;
   display: flex;
 }

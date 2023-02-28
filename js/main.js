@@ -3,6 +3,7 @@
  */
 let data, scatterplot, barchart, viewHabitable, customChart,customChart2, selectedData, selectedData2
 let groupByDiscMethod,groupByPlanetCount,groupByStarCount,groupByStarType, groupByYearDate;
+let histoChart;
 let all_barcharts = []
 
 
@@ -107,6 +108,19 @@ d3.csv('data/exoplanets.csv')
       return outputMap
     }
     
+    function mapDistance(data) {
+      return d3.map(data,(d) =>{
+        console.log(d)
+        return d.sy_dist
+      })
+    }
+
+    function mapScatter(data){
+      return d3.map(data,(d) =>{
+        console.log(d)
+        return {'radius': d.pl_rade, 'mass': d.pl_bmass, 'name':d.pl_name}
+      })
+    }
 
     
     // convert to date and sort
@@ -117,7 +131,7 @@ d3.csv('data/exoplanets.csv')
     sortedData = data.sort((a, b) => d3.ascending(a.disc_year, b.disc_year)); // sort by year first
     groupByYearDate = mapOutDataHabitable(sortedData,'disc_year')
     //console.log('gotgroup',groupByYearDate)
-    /*discoveryPerYear = new BarChart({ TOTO: uncommen this
+    discoveryPerYear = new BarChart({
       'parentElement': '#discVis',
       'type': 'single',
       'xLabel': 'year',
@@ -125,11 +139,11 @@ d3.csv('data/exoplanets.csv')
       'xLabelText': 'Year',
       'yLabelText': 'Discoveries',
       'scale': 'time',
-      'containerWidth': 650,
-      'containerHeight': 400,
+      'containerWidth': 600,
+      'containerHeight': 300,
       'title': "Discoveries Per Year",
       'showHabit': false
-    },groupByYearDate)*/
+    },groupByYearDate)
 
     sortedData = data.sort((a, b) => d3.ascending(a.sy_snum, b.sy_snum)); // Can make dynamic
     groupByStarCount = mapOutDataHabitable(sortedData,'sy_snum')
@@ -141,9 +155,14 @@ d3.csv('data/exoplanets.csv')
     let typeFiltered = data.filter(d => d.starType != "Unknown"); // filter out unkown star types for now
     groupByStarType = mapOutDataHabitable(typeFiltered,'starType')
 
-
     groupByDiscMethod = mapOutDataHabitable(data,'discoverymethod')
     
+    groupByDistance = mapDistance(data)
+    console.log("group dist",groupByDistance)
+
+
+    scatterGroup = mapScatter(data)
+
     selectedData = groupByStarCount;
     customChart = new BarChart({
       'parentElement': '#chartDown',
@@ -154,7 +173,7 @@ d3.csv('data/exoplanets.csv')
       'yLabelText': 'Exoplanets',
       'scale': 'category',
       'containerWidth': 600,
-      'containerHeight': 400,
+      'containerHeight': 300,
       'title': "Exoplanets per Star Count",
       'showHabit': false
     },groupByStarCount)
@@ -170,103 +189,50 @@ d3.csv('data/exoplanets.csv')
       'xLabelText': 'Number of Planets',
       'yLabelText': 'Exoplanets',
       'scale': 'category',
+      'title': "Exoplanets per System Planets",
       'containerWidth': 600,
+      'containerHeight': 300,
+      'showHabit': false
+    },groupByPlanetCount)
+
+
+    histoChart = new Histogram({
+      'parentElement': '#distoChart',
+      'type': 'single',
+      'xLabel': 'xLabel',
+      'yLabel': 'count',
+      'xLabelText': 'Distance From Earth',
+      'yLabelText': 'Exoplanets',
+      'scale': 'category',
+      'containerWidth': 600,
+      'containerHeight': 300,
+      'title': "Exoplanets by Distance From Earth (parsecs)",
+      'showHabit': false
+    },groupByDistance)
+    
+  
+    // scatter plot 
+    scatterChart = new Scatterplot({
+      'parentElement': '#sizeScatter',
+      'type': 'single',
+      'xLabel': 'xLabel',
+      'yLabel': 'count',
+      'xLabelText': 'Mass',
+      'yLabelText': 'Radius',
+      'scale': 'category',
+      'containerWidth': 1200,
       'containerHeight': 400,
+      'title': "Exoplanets by Distance From Earth (parsecs)",
       'showHabit': false
-    },groupByPlanetCount)
-    
+    }, scatterGroup)
+
+    customChart.updateVis();
     customChart2.updateVis();
-    //discoveryPerYear.updateVis();
-    /*
-    planetsPerStar = new BarChart({
-      'parentElement': '#chartDown',
-      'type': 'single',
-      'xLabel': 'xLabel',
-      'yLabel': 'count',
-      'xLabelText': 'Number of stars',
-      'yLabelText': 'Exoplanets',
-      'scale': 'category',
-      'containerWidth': 900,
-      'containerHeight': 500,
-      'showHabit': false
-    },groupByStarCount)
+    discoveryPerYear.updateVis();
+    histoChart.updateVis();
+    scatterChart.updateVis();
 
     
-
-    
-    //groupByPlanetCount = Array.from(groupByPlanetCount, ([xLabel, count]) => ({ xLabel, count })); // converts rollup data to object array
-
-    planetsPerPlanet = new BarChart({
-      'parentElement': '#planetCount',
-      'type': 'single',
-      'xLabel': 'xLabel',
-      'yLabel': 'count',
-      'xLabelText': 'Number of Planets',
-      'yLabelText': 'Exoplanets',
-      'scale': 'category',
-      'containerWidth': 900,
-      'containerHeight': 500,
-      'showHabit': false
-    },groupByPlanetCount)
-
-
-    //(Format spectral type to just the first letter type:
-    //https://en.wikipedia.org/wiki/Stellar_classification <- how to classif
-    
-    
-    //groupByStarType = Array.from(groupByStarType, ([xLabel, count]) => ({ xLabel, count })); // converts rollup data to object array
-
-    planetsPerStarType = new BarChart({
-      'parentElement': '#starTypeCount',
-      'type': 'single',
-      'xLabel': 'xLabel',
-      'yLabel': 'count',
-      'xLabelText': 'Star Spectral Type',
-      'yLabelText': 'Exoplanets',
-      'scale': 'category',
-      'containerWidth': 900,
-      'containerHeight': 500,
-      'showHabit': false
-    },groupByStarType)
-
-    
-   
-    //groupByDiscMethod = Array.from(groupByDiscMethod, ([xLabel, count]) => ({ xLabel, count })); // converts rollup data to object array
-    planetsPerDiscMethod = new BarChart({
-      'parentElement': '#discoveryMethodCount',
-      'type': 'single',
-      'xLabel': 'xLabel',
-      'yLabel': 'count',
-      'xLabelText': 'Discovery Method',
-      'yLabelText': 'Exoplanets',
-      'scale': 'category',
-      'containerWidth': 900,
-      'containerHeight': 500,
-      'showHabit': false
-    },groupByDiscMethod)
-
-
-  /*
-    scatterplot = new Scatterplot({ 
-      'parentElement': '#size',
-      'containerHeight': 500,
-      'containerHeight': 800
-    
-    
-    }, data);
-    
-    lineChart = new Line({ 
-      'parentElement': '#unkown',
-			'containerHeight': 500,
-			'containerWidth': 800
-    
-    }, data);
-  */
-    
-    //planetsPerStar.updateVis();
-    //planetsPerPlanet.updateVis();
-    //planetsPerStarType.updateVis();
-    //planetsPerDiscMethod.updateVis();
     all_barcharts.push(customChart,customChart2)
     //scatterplot.updateVis();
     //lineChart.updateVis()
@@ -327,8 +293,11 @@ d3.csv('data/exoplanets.csv')
  */
 
 d3.selectAll('#viewHabit').on('click', function(e) {
+  console.log('habit clicked')
   customChart.data = []
+  console.log('custom chart updating')
   customChart.updateVis()
+  console.log("custom chartsthuff")
 
   let checked = e.target.checked;
   console.log("chang habit",checked);
@@ -338,6 +307,7 @@ d3.selectAll('#viewHabit').on('click', function(e) {
 
 
 d3.selectAll('#viewHabit2').on('click', function(e) {
+  console.log("habit2 clicked")
   customChart2.data = []
   customChart2.updateVis()
 
@@ -393,6 +363,12 @@ d3.selectAll('#axisView2').on('click', function(e) {
   buildChart(customChart2,targ)
 });
 
+
+ // Listener for bar select for histogram
+ d3.select("#nBin").on("input", function() {
+  console.log("setting bin count",this.value)
+  updateChart(histoChart,'bins',this.value)
+ });
 
 d3.selectAll('.legend-btn').on('click', function() {
   // Toggle 'inactive' class
