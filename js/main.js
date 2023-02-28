@@ -117,9 +117,10 @@ d3.csv('data/exoplanets.csv')
 
     function mapScatter(data){
       return d3.map(data,(d) =>{
-        return {'radius': d.pl_rade, 'mass': d.pl_bmasse, 'name':d.pl_name}
+        return {'radius': parseFloat(d.pl_rade), 'mass': parseFloat(d.pl_bmasse), 'name':d.pl_name}
       })
     }
+    
 
     
     // convert to date and sort
@@ -161,6 +162,11 @@ d3.csv('data/exoplanets.csv')
 
 
     scatterGroup = mapScatter(data)
+    // Append earth data to it
+    let earthData = [
+      {'name': "Earth", "mass": 1, 'radius': 1}
+    ]
+    scatterGroup.push(earthData)
 
     selectedData = groupByStarCount;
     customChart = new BarChart({

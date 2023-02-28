@@ -50,7 +50,7 @@ class Scatterplot {
         .domain(['Easy','Intermediate','Difficult']);
 
     this.xScale = d3.scaleLog() // use log?
-        .range([0, this.width]);
+        .range([0, this.width]).nice();
         console.log(this.width)
 
     this.yScale = d3.scaleLinear() // use log?
@@ -58,7 +58,7 @@ class Scatterplot {
 
     // Initialize axes
     this.xAxis = d3.axisBottom(this.xScale)
-        .ticks(10)
+        .ticks(5)
         .tickSize(-this.height - 10)
         .tickPadding(10)
         .tickFormat(d => d); // more format?
@@ -126,7 +126,8 @@ class Scatterplot {
     // Set the scale input domains
     this.xScale.domain([1, d3.max(this.data, this.xValue)]);
     this.yScale.domain([0, d3.max(this.data, this.yValue)]);
-    console.log('yDom',this.yScale.domain())
+    console.log('yDom',this.yScale.domain(),this.xScale.domain())
+    console.log(d3.max(this.data, this.yValue),this.yValue)
     // Add circles
     this.circles = this.chart.selectAll('.point')
         .data(this.data, d => d) // might need to pass this through
