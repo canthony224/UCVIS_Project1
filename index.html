@@ -13,29 +13,60 @@
     <!-- <link href="css/styles.css" rel="stylesheet"> --> 
 </head>
 <body>
-    <h1>Star Struck</h1>
-    <label for="viewhabit">View Planets In Habitable Zone</label>
-    <input type="checkbox" id="viewHabit">
-    <div class="source">
-        Source: Data from <a href="exoplanetarchive.ipac.caltech.edu">exoplanetarchive.ipac.caltech.edu</a>
-    </div>
+    
+   
 
     <!--discoveries per year bar chart-->
-    <svg id="discVis" width="900" height="500"> </svg>
+   
 
      <!--planets per star count bar chart-->
+    
+     <div class="header">
+        <h1>Star Struck</h1>
+        <p>A visualization of space</p>
+        <div class="source">
+            Data from <a href="exoplanetarchive.ipac.caltech.edu">exoplanetarchive.ipac.caltech.edu</a>
+        </div>
+     </div>
+
+<div class="row">
+     <div id="timeline"> 
+        <svg id="discVis" width="600" height="400"> </svg>
+    </div>
+    
+    <div id="custom"> 
+        <div class="cbox"> 
+            <label for="viewhabit">Planets In Habitable Zone</label>
+            <input type="checkbox" id="viewHabit">
+        </div>
+        <svg id="chartDown" width = "600", height = "400"></svg>
+        <div class="dropdown">
+            <button id = "dropbutn" onclick="myFunction()" class="dropbtn">X Axis</button>
+            <div id="myDropdown" class="dropdown-content">
+                <input type="text" placeholder="Search.." id="myInput" onkeyup="filterFunction()">
+                <a id="axisView" data="sc">Stars In System</a>
+                <a id="axisView" data="pc">Planets In System</a>
+                <a id="axisView" data="ot">Orbiting Star Type</a>
+                <a id="axisView" data="dm">Discovery Method</a>
+            </div>
+        </div>
+    </div>
+    
+</div>
+    
+      
+        <!--
      <svg id="starCount" width="900" height="500"> </svg>
 
-      <!--planets per planet count bar chart-->
+      planets per planet count bar chart
       <svg id="planetCount" width="900" height="500"> </svg>
 
-      <!--planets per star type bar chart-->
-      <svg id="starTypeCount" width="900" height="500"> </svg>
+      planets per star type bar chart
+      <svg id="starTypeCount" width="900" height="500"> </svg
 
-
-      <!--Discovery Method-->
+      Discovery Method
       <svg id="discoveryMethodCount" width="900" height="500"> </svg>
-
+    -->
 
     <div id="tooltip"></div>
     <!-- Load external JS files -->
