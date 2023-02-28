@@ -6,12 +6,12 @@
 .flex-container > div {
   background-color: #f1f1f1;
   margin: 10px;
-  padding: 20px;
+  padding: 10px;
   font-size: 30px;
 }
 
 .header {
-  padding: 10px;
+  padding: 5px;
   text-align: center;
   background: #fabc9c;
   color: white;

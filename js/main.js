@@ -230,7 +230,7 @@ d3.csv('data/exoplanets.csv')
       'scale': 'category',
       'containerWidth': 1200,
       'containerHeight': 400,
-      'title': "Exoplanets by Distance From Earth (parsecs)",
+      'title': "Exoplanet Mass and Radius (relative to earth)",
       'showHabit': false
     }, scatterGroup)
 

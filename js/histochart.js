@@ -145,7 +145,7 @@ class Histogram {
       .on('mouseover', (event,d) => {
         console.log("mouseover",d)
         let xOutput ='test'
-        let yOutput ='test'
+        let yOutput =d.length
        
         d3.select('#tooltip')
           .style('display', 'block')
@@ -154,8 +154,7 @@ class Histogram {
           .html( (d) => {
             console.log('tipd',d)
             return(`
-              <div><b>hm</b> ${xOutput}</div>
-              <div>hm</b> ${yOutput}</div>
+              <div>Count</b> ${yOutput}</div>
               `)
           })
         })
