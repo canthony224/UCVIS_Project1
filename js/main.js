@@ -110,15 +110,14 @@ d3.csv('data/exoplanets.csv')
     
     function mapDistance(data) {
       return d3.map(data,(d) =>{
-        console.log(d)
+        //console.log(d)
         return d.sy_dist
       })
     }
 
     function mapScatter(data){
       return d3.map(data,(d) =>{
-        console.log(d)
-        return {'radius': d.pl_rade, 'mass': d.pl_bmass, 'name':d.pl_name}
+        return {'radius': d.pl_rade, 'mass': d.pl_bmasse, 'name':d.pl_name}
       })
     }
 
@@ -158,7 +157,7 @@ d3.csv('data/exoplanets.csv')
     groupByDiscMethod = mapOutDataHabitable(data,'discoverymethod')
     
     groupByDistance = mapDistance(data)
-    console.log("group dist",groupByDistance)
+    //console.log("group dist",groupByDistance)
 
 
     scatterGroup = mapScatter(data)
@@ -250,7 +249,7 @@ d3.csv('data/exoplanets.csv')
   }
 
   function updateChart(chart,column,value)  { // sets value of chart and updates it
-    console.log("updating chart",chart,column)  
+    //console.log("updating chart",chart,column)  
     chart[column] = value
     chart.updateVis()
   }
@@ -293,26 +292,26 @@ d3.csv('data/exoplanets.csv')
  */
 
 d3.selectAll('#viewHabit').on('click', function(e) {
-  console.log('habit clicked')
+  //console.log('habit clicked')
   customChart.data = []
-  console.log('custom chart updating')
+  //console.log('custom chart updating')
   customChart.updateVis()
-  console.log("custom chartsthuff")
+  //console.log("custom chartsthuff")
 
   let checked = e.target.checked;
-  console.log("chang habit",checked);
+  //console.log("chang habit",checked);
   customChart.data = selectedData
   updateChart(customChart,'showHabit',checked) // change to selected state
 });
 
 
 d3.selectAll('#viewHabit2').on('click', function(e) {
-  console.log("habit2 clicked")
+  //console.log("habit2 clicked")
   customChart2.data = []
   customChart2.updateVis()
 
   let checked = e.target.checked;
-  console.log("chang habit2",checked);
+  //console.log("chang habit2",checked);
   customChart2.data = selectedData2
   updateChart(customChart2,'showHabit',checked) // change to selected state
 });
@@ -366,7 +365,7 @@ d3.selectAll('#axisView2').on('click', function(e) {
 
  // Listener for bar select for histogram
  d3.select("#nBin").on("input", function() {
-  console.log("setting bin count",this.value)
+  //console.log("setting bin count",this.value)
   updateChart(histoChart,'bins',this.value)
  });
 

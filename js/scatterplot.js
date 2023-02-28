@@ -9,9 +9,9 @@ class Scatterplot {
     this.config = {
       parentElement: _config.parentElement,
       containerWidth: _config.containerWidth || 600,
-      containerHeight: _config.containerHeight || 400,
-      margin: _config.margin || {top: 25, right: 20, bottom: 20, left: 35},
-      tooltipPadding: _config.tooltipPadding || 15
+        containerHeight: _config.containerHeight || 400,
+        margin: _config.margin || {top: 50, right: 30, bottom: 50, left: 45},
+        tooltipPadding: _config.tooltipPadding || 15
     }
     this.data = _data;
     this.xLabel = _config.xLabel
@@ -36,27 +36,37 @@ class Scatterplot {
     this.height = this.config.containerHeight - this.config.margin.top - this.config.margin.bottom;
 
     // Initialize scales
-    this.colorScale = d3.scaleOrdinal() // get earth data
+    this.colorScale = function(d) {
+      let myplanets = ["Earth","Mars"];
+      if (myplanets.indexOf(d) >= 0){
+        console.log("found?")
+        return "#d9d9d9"
+      }else{
+        return "#e42256"
+      }
+    }
+    this.ordinalScale = d3.scaleOrdinal() // Keeping this here just in case
         .range(['#d3eecd', '#7bc77e', '#2a8d46']) // light green to dark green
         .domain(['Easy','Intermediate','Difficult']);
 
-    this.xScale = d3.scaleLinear() // use log?
+    this.xScale = d3.scaleLog() // use log?
         .range([0, this.width]);
+        console.log(this.width)
 
     this.yScale = d3.scaleLinear() // use log?
         .range([this.height, 0]);
 
     // Initialize axes
     this.xAxis = d3.axisBottom(this.xScale)
-        .ticks(6)
+        .ticks(10)
         .tickSize(-this.height - 10)
         .tickPadding(10)
         .tickFormat(d => d); // more format?
 
     this.yAxis = d3.axisLeft(this.yScale)
-        .ticks(6)
+        .ticks(10,">,~d")
         .tickSize(-this.width - 10)
-        .tickFormat(">,~d")
+
         .tickPadding(10);
 
     // Define size of SVG drawing area
@@ -67,7 +77,7 @@ class Scatterplot {
     // Append group element that will contain our actual chart 
     // and position it according to the given margin config
     this.chart = this.svg.append('g')
-        .attr('transform', `translate(${this.config.margin.left},${this.config.margin.top})`);
+      .attr('transform', `translate(${this.config.margin.left},${this.config.margin.top})`);
 
     // Append empty x-axis group and move it to the bottom of the chart
     this.xAxisG = this.chart.append('g')
@@ -102,9 +112,9 @@ class Scatterplot {
         .text(this.title);
 
     // Specificy accessor functions
-    this.colorValue = d => d.difficulty;
-    this.xValue = d => d.time;
-    this.yValue = d => d.distance;
+    this.colorValue = d => d.name;
+    this.xValue = d => d.mass;
+    this.yValue = d => d.radius;
   }
 
   /**
@@ -114,15 +124,17 @@ class Scatterplot {
     let vis = this;
     
     // Set the scale input domains
-    this.xScale.domain([0, d3.max(this.data, this.xValue)]);
+    this.xScale.domain([1, d3.max(this.data, this.xValue)]);
     this.yScale.domain([0, d3.max(this.data, this.yValue)]);
-
+    console.log('yDom',this.yScale.domain())
     // Add circles
     this.circles = this.chart.selectAll('.point')
-        .data(this.data, d => d.trail)
+        .data(this.data, d => d) // might need to pass this through
       .join('circle')
         .attr('class', 'point')
-        .attr('r', 4)
+        .attr('r', d => {
+          
+           return 4}) // can do a radius fun thing with this
         .attr('cy', d => this.yScale(this.yValue(d)))
         .attr('cx', d => this.xScale(this.xValue(d)))
         .attr('fill', d => this.colorScale(this.colorValue(d)));
@@ -136,12 +148,10 @@ class Scatterplot {
             .style('left', (event.pageX + this.config.tooltipPadding) + 'px')   
             .style('top', (event.pageY + this.config.tooltipPadding) + 'px')
             .html(`
-              <div class="tooltip-title">${d.trail}</div>
-              <div><i>${d.region}</i></div>
+              <div class="tooltip-title">${d.name}</div>
               <ul>
-                <li>${d.distance} km, ~${d.time} hours</li>
-                <li>${d.difficulty}</li>
-                <li>${d.season}</li>
+                <li><b>Mass:</b> ${d.mass} times Earth's</li>
+                <li><b>Radius:</b> ${d.radius} times Earth's</li>
               </ul>
             `);
         })
