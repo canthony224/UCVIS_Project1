@@ -37,7 +37,7 @@ class Scatterplot {
 
     // Initialize scales
     this.colorScale = function(d) {
-      let myplanets = ["Earth","Mars"];
+      let myplanets = ["Earth","Mars","Jupiter"];
       if (myplanets.indexOf(d) >= 0){
         console.log("found?")
         return "#d9d9d9"

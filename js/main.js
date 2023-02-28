@@ -164,7 +164,10 @@ d3.csv('data/exoplanets.csv')
     scatterGroup = mapScatter(data)
     // Append earth data to it
     let earthData = [
-      {'name': "Earth", "mass": 1, 'radius': 1}
+      {'name': "Earth", "mass": 1, 'radius': 1},
+      {'name': "Mars", "mass": 0.107, 'radius': 0.714/2},
+      {'name': "Jupiter", "mass": 317, 'radius': 11.21},
+      {'name': "Saturn", "mass": 95.2, 'radius': 9.45},
     ]
     scatterGroup.push(earthData)
 
