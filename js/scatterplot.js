@@ -135,7 +135,7 @@ class Scatterplot {
         .attr('class', 'point')
         .attr('r', d => {
           
-           return 4}) // can do a radius fun thing with this
+           return 1}) // can do a radius fun thing with this
         .attr('cy', d => this.yScale(this.yValue(d)))
         .attr('cx', d => this.xScale(this.xValue(d)))
         .attr('fill', d => this.colorScale(this.colorValue(d)));

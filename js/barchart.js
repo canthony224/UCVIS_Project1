@@ -33,8 +33,9 @@ class BarChart {
     this.height = this.config.containerHeight - this.config.margin.top - this.config.margin.bottom;
 
     
-    console.log("generating bar chart",this.data,this.showHabit)  
+    console.log("generating bar chart",this.data)  
     // Construct scales, axes, and formats.
+    // Chart converts into group barchart when this.showHabit == true
     let xDomain,xRange;
     let yDomain,yRange;
     if (this.scale == 'time'){
@@ -48,10 +49,10 @@ class BarChart {
       this.xScale = d3.scaleBand(xDomain,xRange).padding( this.showHabit ? 0.2 : 0)
       console.log(xDomain,xRange)
 
-    this.habitScale = d3.scaleBand()
-    .domain(['-1','0','1'])
-    .range([0,this.xScale.bandwidth()])
-    .padding(0.1);
+      this.habitScale = d3.scaleBand()
+      .domain(['-1','0','1']) // Manually set domain for the groups of bars. can pass in or manually set here
+      .range([0,this.xScale.bandwidth()]) //auto groups bars based on count and number of groups
+      .padding(0.1);
     }
 
     //.domain(xDomain)
@@ -136,7 +137,6 @@ class BarChart {
   }
 
   updateVis(){
-    console.log("updating?",this.data)
     
     let xDomain, yDomain, xRange, yRange;
     if (this.scale == 'time'){
@@ -146,7 +146,7 @@ class BarChart {
       xDomain = d3.map(this.data,function(d) {return d[0]; });
       this.xScale.domain(xDomain).padding( this.showHabit ? 0.2 : 0)
       
-      this.habitScale = d3.scaleBand()
+      this.habitScale = d3.scaleBand() // Setting domain for Grouped bar chart
       .domain(['-1','0','1'])
       .range([0,this.xScale.bandwidth()])
       .padding(0.1);
@@ -182,7 +182,7 @@ class BarChart {
 
   renderVis() {
     // ACTUAL CHART UPDATING
-    if (this.showHabit) {
+    if (this.showHabit) { // This UPDATES TO SHOW GROUPED BAR CHART
       console.log("showingShit")
       this.chart.append('g')
       .selectAll('g')
@@ -239,7 +239,7 @@ class BarChart {
       })
       .attr('opacity',1)
     
-    } else{
+    } else{ // THIS DOES NOT SHOW GROUPED BAR CHART. CAN IGNORE
       this.bars = this.chart.selectAll('.bar')
       .data(this.data)
       .join(
@@ -281,7 +281,7 @@ class BarChart {
           return exit.remove();
         }
       ) // move tootltip stuff here
-      .on('mouseover', (event,d) => {
+      .on('mouseover', (event,d) => { // TOOTIP code
         let xOutput;
         let yOutput;
         if (this.scale == 'time'){
